@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "Patient": {
+      "title": "Patient",
+      "description": "Patient information and medical records",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Patient name" },
+        "gender": { "type": "string", "enum": ["male", "female"], "description": "Patient gender" },
+        "age": { "type": "number", "description": "Patient age" },
+        "bloodType": { "type": "string", "description": "Blood type" },
+        "department": { "type": "string", "description": "Department name" },
+        "attendingPhysician": { "type": "string", "description": "Attending physician" },
+        "professor": { "type": "string", "description": "Professor name" },
+        "admissionDate": { "type": "string", "format": "date-time", "description": "Admission date" },
+        "dischargeDate": { "type": "string", "format": "date-time", "description": "Discharge date" },
+        "roundingTime": { "type": "string", "description": "Rounding time" },
+        "currentStatus": { "type": "string", "description": "Current status" },
+        "specialNotes": { "type": "string", "description": "Special notes" },
+        "ward": { "type": "string", "description": "Ward or room name" },
+        "institutionName": { "type": "string", "description": "Other hospital name" },
+        "transferReason": { "type": "string", "description": "Transfer reason" },
+        "otherRecords": { "type": "string", "description": "Other records" },
+        "visitHistory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string", "format": "date-time" },
+              "reason": { "type": "string" },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "uid": { "type": "string", "description": "Owner UID" }
+      },
+      "required": ["name", "gender", "age", "uid"]
+    }
+  },
+  "firestore": {
+    "patients": {
+      "schema": "Patient",
+      "description": "Collection of patients"
+    }
+  }
+}

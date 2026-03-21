@@ -1,0 +1,101 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: patients
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required)
+    //   - gender: string (required, 'male'|'female')
+    //   - age: number (required, >= 0)
+    //   - bloodType: string
+    //   - department: string
+    //   - attendingPhysician: string
+    //   - professor: string
+    //   - admissionDate: timestamp
+    //   - dischargeDate: timestamp
+    //   - roundingTime: string
+    //   - currentStatus: string
+    //   - specialNotes: string
+    //   - ward: string
+    //   - institutionName: string
+    //   - transferReason: string
+    //   - otherRecords: string
+    //   - visitHistory: list of maps
+    //   - createdAt: timestamp
+    //   - updatedAt: timestamp
+    //   - uid: string (required, owner UID)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "ns.0.yujin@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == resource.data.uid;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidPatient(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.gender in ['male', 'female'] &&
+             data.age is number && data.age >= 0 && data.age < 150 &&
+             (!('bloodType' in data) || (data.bloodType is string && data.bloodType.size() < 10)) &&
+             (!('department' in data) || (data.department is string && data.department.size() < 100)) &&
+             (!('attendingPhysician' in data) || (data.attendingPhysician is string && data.attendingPhysician.size() < 100)) &&
+             (!('professor' in data) || (data.professor is string && data.professor.size() < 100)) &&
+             (!('ward' in data) || (data.ward is string && data.ward.size() < 100)) &&
+             (!('currentStatus' in data) || (data.currentStatus is string && data.currentStatus.size() < 1000)) &&
+             (!('specialNotes' in data) || (data.specialNotes is string && data.specialNotes.size() < 5000)) &&
+             (!('visitHistory' in data) || (data.visitHistory is list && data.visitHistory.size() < 100));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /patients/{patientId} {
+      allow read, write: if true;
+    }
+
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+  }
+}
