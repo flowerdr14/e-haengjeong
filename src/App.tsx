@@ -39,16 +39,6 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Sync selected patient with latest data from patients list
-  useEffect(() => {
-    if (selectedPatient?.id) {
-      const updated = patients.find(p => p.id === selectedPatient.id);
-      if (updated && JSON.stringify(updated) !== JSON.stringify(selectedPatient)) {
-        setSelectedPatient(updated);
-      }
-    }
-  }, [patients, selectedPatient]);
-
   const filteredPatients = patients.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.ward?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -72,6 +62,7 @@ export default function App() {
         : doc(collection(db, 'patients'));
       
       await setDoc(docRef, patientData);
+      setSelectedPatient({ ...patientData, id: docRef.id });
       alert('저장되었습니다.');
     } catch (err) {
       handleFirestoreError(err, OperationType.WRITE, 'patients');

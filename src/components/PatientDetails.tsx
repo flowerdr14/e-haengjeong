@@ -61,6 +61,11 @@ export default function PatientDetails({
 
     let updatedValue: any = value;
     
+    // Handle age conversion to number
+    if (name === 'age') {
+      updatedValue = value === '' ? 0 : Number(value);
+    }
+    
     // Handle date fields conversion to Timestamp
     if ((name === 'admissionDate' || name === 'dischargeDate') && value) {
       const [year, month, day] = value.split('-').map(Number);
