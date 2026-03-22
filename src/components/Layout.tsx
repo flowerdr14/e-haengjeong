@@ -16,6 +16,7 @@ interface LayoutProps {
   onEdit: () => void;
   onDelete: () => void;
   onSearch: (query: string) => void;
+  onExit: () => void;
   onLogout: () => void;
   user: any;
   themeColor: string;
@@ -29,6 +30,7 @@ export default function Layout({
   onEdit,
   onDelete,
   onSearch,
+  onExit,
   onLogout,
   user,
   themeColor
@@ -71,7 +73,7 @@ export default function Layout({
           <button
             onClick={() => {
               if (window.confirm('프로그램을 종료하시겠습니까?')) {
-                window.location.href = 'about:blank';
+                onExit();
               }
             }}
             className="flex items-center gap-1 px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors font-bold"
@@ -144,7 +146,7 @@ export default function Layout({
           <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white" style={{ backgroundColor: themeColor }}>
             <Hospital size={20} />
           </div>
-          <span>E-행정 (온라인 원무)</span>
+          <span>E-행정 시스템</span>
         </div>
       </div>
     </div>

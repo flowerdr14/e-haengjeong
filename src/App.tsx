@@ -13,6 +13,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [themeColor, setThemeColor] = useState('#4682b4');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isHome, setIsHome] = useState(true);
 
   // Patients Listener
   useEffect(() => {
@@ -97,6 +98,22 @@ export default function App() {
       visitHistory: []
     });
     setActiveTab('bed');
+    setIsHome(false);
+  };
+
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    setIsHome(false);
+  };
+
+  const handleExit = () => {
+    setSelectedPatient(null);
+    setIsHome(true);
+  };
+
+  const handlePatientSelect = (patient: Patient | null) => {
+    setSelectedPatient(patient);
+    if (patient) setIsHome(false);
   };
 
   if (loading) {
@@ -110,11 +127,12 @@ export default function App() {
   return (
     <Layout
       activeTab={activeTab}
-      onTabChange={setActiveTab}
+      onTabChange={handleTabChange}
       onSave={handleSave}
       onEdit={() => {}} // Edit is handled by state updates in PatientDetails
       onDelete={handleDelete}
       onSearch={handleSearch}
+      onExit={handleExit}
       onLogout={() => {}}
       user={null}
       themeColor={themeColor}
@@ -122,7 +140,7 @@ export default function App() {
       <Sidebar
         patients={filteredPatients}
         selectedPatientId={selectedPatient?.id}
-        onPatientSelect={setSelectedPatient}
+        onPatientSelect={handlePatientSelect}
         onSearch={handleSearch}
         themeColor={themeColor}
       />
@@ -132,13 +150,23 @@ export default function App() {
             <span className="font-bold" style={{ color: themeColor }}>현재 환자:</span>
             <span className="font-medium">{selectedPatient?.name || '선택 없음'}</span>
           </div>
-          <button
-            onClick={handleNewPatient}
-            className="px-4 py-0.5 text-white rounded hover:opacity-90 text-xs font-bold"
-            style={{ backgroundColor: themeColor }}
-          >
-            + 새 환자 등록
-          </button>
+          <div className="flex gap-1">
+            {!isHome && (
+              <button
+                onClick={handleExit}
+                className="px-4 py-0.5 bg-gray-500 text-white rounded hover:bg-gray-600 text-xs font-bold"
+              >
+                종료
+              </button>
+            )}
+            <button
+              onClick={handleNewPatient}
+              className="px-4 py-0.5 text-white rounded hover:opacity-90 text-xs font-bold"
+              style={{ backgroundColor: themeColor }}
+            >
+              + 새 환자 등록
+            </button>
+          </div>
         </div>
         <PatientDetails
           patient={selectedPatient}
@@ -146,6 +174,7 @@ export default function App() {
           onPatientUpdate={setSelectedPatient}
           onThemeChange={setThemeColor}
           themeColor={themeColor}
+          isHome={isHome}
         />
       </div>
     </Layout>

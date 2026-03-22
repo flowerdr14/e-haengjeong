@@ -3,6 +3,7 @@ import { Patient, TabType, VisitRecord } from '../types';
 import { User, Calendar, Clock, Activity, FileText, ClipboardList, Hospital, Settings as SettingsIcon } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { Timestamp } from '../firebase';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -14,6 +15,7 @@ interface PatientDetailsProps {
   onPatientUpdate: (patient: Patient) => void;
   onThemeChange: (color: string) => void;
   themeColor: string;
+  isHome: boolean;
 }
 
 export default function PatientDetails({
@@ -21,7 +23,8 @@ export default function PatientDetails({
   activeTab,
   onPatientUpdate,
   onThemeChange,
-  themeColor
+  themeColor,
+  isHome
 }: PatientDetailsProps) {
   const [formData, setFormData] = React.useState<Patient | null>(patient);
   const [newVisit, setNewVisit] = React.useState<VisitRecord>({ date: '', reason: '', notes: '' });
@@ -30,14 +33,14 @@ export default function PatientDetails({
     setFormData(patient);
   }, [patient]);
 
-  if (!patient && activeTab !== 'settings') {
+  if (isHome && activeTab !== 'settings') {
     return (
       <div className="flex-1 flex items-center justify-center bg-white">
         <div className="text-center p-8 border-4 border-gray-200 rounded-3xl shadow-xl max-w-md">
           <div className="w-48 h-48 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center text-gray-300">
             <Hospital size={100} />
           </div>
-          <h2 className="text-2xl font-bold text-gray-400 mb-2">E-행정</h2>
+          <h2 className="text-2xl font-bold text-gray-400 mb-2">E-행정 시스템</h2>
           <p className="text-gray-400 font-medium">환자를 선택하거나 새로 등록해 주세요.</p>
         </div>
       </div>
@@ -45,9 +48,27 @@ export default function PatientDetails({
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    if (!formData) return;
     const { name, value } = e.target;
-    const updated = { ...formData, [name]: value };
+    
+    // Create a base patient object if none exists
+    const basePatient: Patient = formData || {
+      name: '',
+      gender: 'male',
+      age: 0,
+      uid: 'demo-user',
+      visitHistory: []
+    };
+
+    let updatedValue: any = value;
+    
+    // Handle date fields conversion to Timestamp
+    if ((name === 'admissionDate' || name === 'dischargeDate') && value) {
+      const [year, month, day] = value.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      updatedValue = Timestamp.fromDate(date);
+    }
+    
+    const updated = { ...basePatient, [name]: updatedValue };
     setFormData(updated);
     onPatientUpdate(updated);
   };
@@ -157,7 +178,7 @@ export default function PatientDetails({
         </div>
         <div className="flex flex-col">
           <label className="text-[10px] font-bold text-gray-400 uppercase">입원일</label>
-          <input type="date" name="admissionDate" value={formData?.admissionDate?.toDate().toISOString().split('T')[0] || ''} onChange={handleChange} className="font-medium border-b border-gray-200 hover:border-gray-400 focus:border-[#4682b4] outline-none bg-white/50 px-1" />
+          <input type="date" name="admissionDate" value={formData?.admissionDate?.toDate?.()?.toISOString().split('T')[0] || ''} onChange={handleChange} className="font-medium border-b border-gray-200 hover:border-gray-400 focus:border-[#4682b4] outline-none bg-white/50 px-1" />
         </div>
       </div>
     </div>
@@ -299,7 +320,7 @@ export default function PatientDetails({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col">
               <label className="text-xs font-bold text-gray-500">입원일자</label>
-              <input type="date" name="admissionDate" value={formData?.admissionDate?.toDate().toISOString().split('T')[0] || ''} onChange={handleChange} className="border border-gray-300 p-2 rounded bg-white shadow-sm" />
+              <input type="date" name="admissionDate" value={formData?.admissionDate?.toDate?.()?.toISOString().split('T')[0] || ''} onChange={handleChange} className="border border-gray-300 p-2 rounded bg-white shadow-sm" />
             </div>
             <div className="flex flex-col">
               <label className="text-xs font-bold text-gray-500">병동/병실</label>
@@ -316,7 +337,7 @@ export default function PatientDetails({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col">
               <label className="text-xs font-bold text-gray-500">퇴원일자</label>
-              <input type="date" name="dischargeDate" value={formData?.dischargeDate?.toDate().toISOString().split('T')[0] || ''} onChange={handleChange} className="border border-gray-300 p-2 rounded bg-white shadow-sm" />
+              <input type="date" name="dischargeDate" value={formData?.dischargeDate?.toDate?.()?.toISOString().split('T')[0] || ''} onChange={handleChange} className="border border-gray-300 p-2 rounded bg-white shadow-sm" />
             </div>
             <div className="flex flex-col">
               <label className="text-xs font-bold text-gray-500">퇴원상태</label>
@@ -395,7 +416,7 @@ export default function PatientDetails({
             </li>
             <li className="flex items-center gap-2 p-2 bg-gray-100 rounded hover:bg-blue-50 cursor-pointer">
               <div className="w-6 h-6 bg-cyan-500 rounded-full flex items-center justify-center text-white text-[10px]">E</div>
-              <span>E-행정 (온라인 원무)</span>
+              <span>E-행정 시스템</span>
             </li>
           </ul>
         </div>
