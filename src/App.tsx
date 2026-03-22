@@ -11,9 +11,16 @@ export default function App() {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('bed');
   const [loading, setLoading] = useState(true);
-  const [themeColor, setThemeColor] = useState('#4682b4');
+  const [themeColor, setThemeColor] = useState(() => {
+    return localStorage.getItem('hospital_theme_color') || '#4682b4';
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [isHome, setIsHome] = useState(true);
+
+  // Persist theme color
+  useEffect(() => {
+    localStorage.setItem('hospital_theme_color', themeColor);
+  }, [themeColor]);
 
   // Patients Listener
   useEffect(() => {

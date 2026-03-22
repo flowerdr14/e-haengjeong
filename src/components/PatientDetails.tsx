@@ -90,24 +90,68 @@ export default function PatientDetails({
     onPatientUpdate(updated);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 500 * 1024) { // 500KB limit for base64 in Firestore
+        alert('파일 크기가 너무 큽니다. 500KB 이하의 이미지를 선택해주세요.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        const basePatient: Patient = formData || {
+          name: '',
+          gender: 'male',
+          age: 0,
+          uid: 'demo-user',
+          visitHistory: []
+        };
+        const updated = { ...basePatient, photoUrl: base64String };
+        setFormData(updated);
+        onPatientUpdate(updated);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const renderPatientHeader = () => (
     <div className="bg-[#f8f9fa] border-b border-gray-300 p-4 flex gap-6 items-start">
-      <div className="relative group">
-        <div className="w-32 h-40 bg-gray-200 border border-gray-400 rounded overflow-hidden flex items-center justify-center text-gray-400">
-          {formData?.photoUrl ? (
-            <img src={formData.photoUrl} alt="Patient" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-          ) : (
-            <User size={48} />
-          )}
+      <div className="flex flex-col gap-2">
+        <div className="relative group">
+          <div className="w-32 h-40 bg-gray-200 border border-gray-400 rounded overflow-hidden flex items-center justify-center text-gray-400">
+            {formData?.photoUrl ? (
+              <img src={formData.photoUrl} alt="Patient" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            ) : (
+              <User size={48} />
+            )}
+          </div>
+          <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity text-white text-xs font-bold">
+            <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+            사진 변경
+          </label>
         </div>
-        <div className="mt-2">
+        <div className="flex flex-col gap-1">
           <input
             type="text"
-            placeholder="사진 URL"
+            placeholder="사진 URL (링크)"
             name="photoUrl"
-            value={formData?.photoUrl || ''}
+            value={formData?.photoUrl?.startsWith('data:') ? '' : (formData?.photoUrl || '')}
             onChange={handleChange}
             className="text-[10px] w-32 border border-gray-300 p-1 rounded outline-none"
+          />
+          <button 
+            onClick={() => document.getElementById('pc-photo-upload')?.click()}
+            className="text-[10px] w-32 bg-gray-600 text-white p-1 rounded hover:bg-gray-700 transition-colors"
+          >
+            PC에서 불러오기
+          </button>
+          <input 
+            id="pc-photo-upload"
+            type="file" 
+            accept="image/*" 
+            className="hidden" 
+            onChange={handleFileChange} 
           />
         </div>
       </div>
