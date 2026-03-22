@@ -448,6 +448,7 @@ export default function PatientDetails({
           <button onClick={() => onThemeChange('#2e8b57')} className="w-16 h-16 bg-[#2e8b57] border-2 border-gray-400 rounded-md hover:scale-105 transition-transform" />
           <button onClick={() => onThemeChange('#8b0000')} className="w-16 h-16 bg-[#8b0000] border-2 border-gray-400 rounded-md hover:scale-105 transition-transform" />
           <button onClick={() => onThemeChange('#4b0082')} className="w-16 h-16 bg-[#4b0082] border-2 border-gray-400 rounded-md hover:scale-105 transition-transform" />
+          <button onClick={() => onThemeChange('#696969')} className="w-16 h-16 bg-[#696969] border-2 border-gray-400 rounded-md hover:scale-105 transition-transform" />
         </div>
       </div>
 
