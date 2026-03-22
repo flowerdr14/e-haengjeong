@@ -28,6 +28,7 @@ export default function Sidebar({
   
   const wardsConfig = [
     { name: '100병동', rooms: ['101병실', '102병실', '103병실', '104병실'] },
+    { name: '응급실', rooms: ['응급실 1', '응급실 2', '응급실 3', '응급실 4', '응급실 5', '응급실 6'] },
     { name: '수술실', rooms: ['수술방 1번', '수술방 2번', '수술방 3번'] },
     { name: 'PACU', rooms: ['PACU 1', 'PACU 2', 'PACU 3', 'PACU 4'] },
     { name: '소아병동', rooms: ['소아병동 1', '소아병동 2', '소아병동 3', '소아병동 4'] },
@@ -62,7 +63,7 @@ export default function Sidebar({
     return final;
   }, [patientsByWard, wardsConfig]);
 
-  const [expandedWards, setExpandedWards] = React.useState<string[]>(['100병동', '수술실', 'PACU', '소아병동', '중환자실', '산과병동', '산후병동']);
+  const [expandedWards, setExpandedWards] = React.useState<string[]>(['100병동', '응급실', '수술실', 'PACU', '소아병동', '중환자실', '산과병동', '산후병동']);
 
   const toggleWard = (ward: string) => {
     setExpandedWards(prev =>
